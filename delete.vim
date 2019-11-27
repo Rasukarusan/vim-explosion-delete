@@ -111,6 +111,16 @@ function! s:create_words_window()
     return win_ids
 endfunction
 
+function! s:move_split_window_to_clip_window(win_id)
+    let config = nvim_win_get_config(a:win_id)
+    let i = 0
+    while i <= 20
+        call s:move_floating_window(a:win_id, config.relative, config.row - i, config.col + i*3) 
+        sleep 3ms
+        let i += 1
+    endwhile
+endfunction
+
 function! s:main()
 
     " 現在行の文字列をfloating windowで作成
@@ -127,16 +137,9 @@ function! s:main()
     " 空行を削除
     execute 'normal dd'
 
-    " floating windowを右上に移動
-    let i = 0
+    " 各floating windowを移動
     for win_id in win_ids
-        let config = nvim_win_get_config(win_id)
-        while i <= 20
-            call s:move_floating_window(win_id, config.relative, config.row - i, config.col + i*3) 
-            sleep 3ms
-            let i += 1
-        endwhile
-        let i = 0
+        call s:move_split_window_to_clip_window(win_id)
     endfor
 
     " floating windowを削除

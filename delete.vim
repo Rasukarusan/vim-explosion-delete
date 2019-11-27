@@ -66,6 +66,13 @@ function! s:split_words()
     return result
 endfunction
 
+function! s:set_color_random(win_id)
+    let color = "#" . printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255)))
+    let hl_name = 'ClipBG' . a:win_id
+    execute 'hi' hl_name 'guifg=#ffffff' 'guibg=' . color
+    call nvim_win_set_option(a:win_id, 'winhighlight', 'Normal:'.hl_name)
+endfunction
+
 function! s:main()
     let current_line_text = getline('.')
     let start_row = line('.') - line('w0')
@@ -92,11 +99,7 @@ function! s:main()
 
         call add(win_ids, win_id)
 
-        " ランダムな色を返すようにする
-        let color = "#" . printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255)))
-        let hl_name = 'ClipBG' . i
-        execute 'hi' hl_name 'guifg=#ffffff' 'guibg=' . color
-        " call nvim_win_set_option(win_id, 'winhighlight', 'Normal:'.hl_name)
+        call s:set_color_random(win_id)
 
         call setline('.', word)
         execute "0windo " . ":"

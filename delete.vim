@@ -66,7 +66,7 @@ function! s:split_words()
     return result
 endfunction
 
-function! s:drop_window(win_id)
+function! s:fall_window(win_id)
     let move_y = line('w$') - line('.')
     let i = 0
     let config = nvim_win_get_config(a:win_id)
@@ -129,9 +129,9 @@ function! s:main()
     " 現在行を空行にする
     call setline('.', '')
 
-    " floating windowを下に落とす
+    " 各floating windowを下に落とす
     for win_id in win_ids
-        call s:drop_window(win_id)
+        call s:fall_window(win_id)
     endfor
 
     " 空行を削除
@@ -142,9 +142,9 @@ function! s:main()
         call s:move_split_window_to_clip_window(win_id)
     endfor
 
-    " floating windowを削除
+    " 各floating windowを削除
     for win_id in win_ids
-        " call nvim_win_close(win_id, v:true)
+        call nvim_win_close(win_id, v:true)
     endfor
 endfunction
 

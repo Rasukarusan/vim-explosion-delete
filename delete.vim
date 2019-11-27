@@ -14,7 +14,6 @@ function! s:create_window(config)
     hi mycolor guifg=#ffffff guibg=#dd6900
     call nvim_win_set_option(win_id, 'winhighlight', 'Normal:mycolor')
     call nvim_win_set_option(win_id, 'winblend', 10)
-call nvim_win_set_option(win_id, 'winblend', 100)
     return win_id
 endfunction
 
@@ -89,6 +88,8 @@ function! s:main()
         endif
         let config = { 'relative': 'editor', 'row': start_row, 'col': col, 'width': width, 'height': 1, 'anchor': 'NW', 'style': 'minimal',}
         let win_id = s:create_window(config)
+        call nvim_win_set_option(win_id, 'winblend', 100)
+
         call add(win_ids, win_id)
 
         " ランダムな色を返すようにする

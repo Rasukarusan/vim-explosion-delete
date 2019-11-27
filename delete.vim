@@ -11,8 +11,8 @@ endfunction
 function! s:create_window(config)
     let buf = nvim_create_buf(v:false, v:true)
     let win_id = nvim_open_win(buf, v:true, a:config)
-    hi mycolor guifg=#ffffff guibg=#dd6900
-    call nvim_win_set_option(win_id, 'winhighlight', 'Normal:mycolor')
+    hi window_color guifg=#ffffff guibg=#dd6900
+    call nvim_win_set_option(win_id, 'winhighlight', 'Normal:window_color')
     call nvim_win_set_option(win_id, 'winblend', 10)
     return win_id
 endfunction

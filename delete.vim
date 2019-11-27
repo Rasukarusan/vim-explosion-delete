@@ -14,6 +14,7 @@ function! s:create_window(config)
     hi mycolor guifg=#ffffff guibg=#dd6900
     call nvim_win_set_option(win_id, 'winhighlight', 'Normal:mycolor')
     call nvim_win_set_option(win_id, 'winblend', 10)
+call nvim_win_set_option(win_id, 'winblend', 100)
     return win_id
 endfunction
 
@@ -66,7 +67,6 @@ function! s:split_words()
     return result
 endfunction
 
-
 function! s:main()
     let current_line_text = getline('.')
     let start_row = line('.') - line('w0')
@@ -87,7 +87,7 @@ function! s:main()
         if width == 0
             continue
         endif
-        let config = { 'relative': 'editor', 'row': start_row+1, 'col': col, 'width': width, 'height': 1, 'anchor': 'NW', 'style': 'minimal',}
+        let config = { 'relative': 'editor', 'row': start_row, 'col': col, 'width': width, 'height': 1, 'anchor': 'NW', 'style': 'minimal',}
         let win_id = s:create_window(config)
         call add(win_ids, win_id)
 
@@ -95,33 +95,43 @@ function! s:main()
         let color = "#" . printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255)))
         let hl_name = 'ClipBG' . i
         execute 'hi' hl_name 'guifg=#ffffff' 'guibg=' . color
-        call nvim_win_set_option(win_id, 'winhighlight', 'Normal:'.hl_name)
+        " call nvim_win_set_option(win_id, 'winhighlight', 'Normal:'.hl_name)
 
         call setline('.', word)
         execute "0windo " . ":"
         let col += width
         let i += 1
     endfor
-    redraw
-    " execute 'normal dd'
-    sleep 500ms
+    execute 'normal ddO'
 
-    " floating windowを上から降らす
+    " floating windowを下に落とす
     let move_y = line('w$') - line('.')
     let i = 0
-    while i <= move_y
-        " call s:move_floating_window(win_id, config.relative, config.row + i + 1, config.col) 
-        " sleep 20ms
-        let i += 1
-    endwhile
+    for win_id in win_ids
+        let config = nvim_win_get_config(win_id)
+        while i <= move_y
+            call s:move_floating_window(win_id, config.relative, config.row + i + 1, config.col) 
+            sleep 5ms
+            let i += 1
+        endwhile
+        let i = 0
+    endfor
+    execute 'normal dd'
 
-    " floating windowを透明化
-    " call s:transparency_window(win_id)
+    " floating windowを右上に移動
+    for win_id in win_ids
+        let config = nvim_win_get_config(win_id)
+        while i <= 20
+            call s:move_floating_window(win_id, config.relative, config.row - i, config.col + i*3) 
+            sleep 3ms
+            let i += 1
+        endwhile
+        let i = 0
+    endfor
 
-    sleep 1
     " floating windowを削除
     for win_id in win_ids
-        call nvim_win_close(win_id, v:true)
+        " call nvim_win_close(win_id, v:true)
     endfor
 endfunction
 

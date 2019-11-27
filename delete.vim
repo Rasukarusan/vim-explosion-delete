@@ -74,17 +74,10 @@ function! s:set_color_random(win_id)
 endfunction
 
 function! s:main()
-    let current_line_text = getline('.')
-    let start_row = line('.') - line('w0')
+    let row = line('.') - line('w0')
     let col = s:get_col()
-    let width = s:get_width()
-    let height = s:get_height()
-    let config = { 'relative': 'editor', 'row': start_row, 'col': col, 'width': width, 'height': height, 'anchor': 'NW', 'style': 'minimal',}
-    if width == 0 || height == 0
-        return
-    endif
-
     let win_ids = []
+
     " 現在行の文字列を分割し、floating windowで表示
     let words = s:split_words()
     let i = 0
@@ -93,7 +86,7 @@ function! s:main()
         if width == 0
             continue
         endif
-        let config = { 'relative': 'editor', 'row': start_row, 'col': col, 'width': width, 'height': 1, 'anchor': 'NW', 'style': 'minimal',}
+        let config = { 'relative': 'editor', 'row': row, 'col': col, 'width': width, 'height': 1, 'anchor': 'NW', 'style': 'minimal',}
         let win_id = s:create_window(config)
         call nvim_win_set_option(win_id, 'winblend', 100)
 

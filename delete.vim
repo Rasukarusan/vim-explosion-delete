@@ -66,6 +66,17 @@ function! s:split_words()
     return result
 endfunction
 
+function! s:drop_window(win_id)
+    let move_y = line('w$') - line('.')
+    let i = 0
+    let config = nvim_win_get_config(a:win_id)
+    while i <= move_y
+        call s:move_floating_window(a:win_id, config.relative, config.row + i + 1, config.col) 
+        sleep 5ms
+        let i += 1
+    endwhile
+endfunction
+
 function! s:set_color_random(win_id)
     let color = "#" . printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255)))
     let hl_name = 'ClipBG' . a:win_id
@@ -102,17 +113,10 @@ function! s:main()
     execute 'normal ddO'
 
     " floating windowを下に落とす
-    let move_y = line('w$') - line('.')
-    let i = 0
     for win_id in win_ids
-        let config = nvim_win_get_config(win_id)
-        while i <= move_y
-            call s:move_floating_window(win_id, config.relative, config.row + i + 1, config.col) 
-            sleep 5ms
-            let i += 1
-        endwhile
-        let i = 0
+        call s:drop_window(win_id)
     endfor
+
     execute 'normal dd'
 
     " floating windowを右上に移動

@@ -84,14 +84,13 @@ function! s:set_color_random(win_id)
     call nvim_win_set_option(a:win_id, 'winhighlight', 'Normal:'.hl_name)
 endfunction
 
-function! s:main()
+" 現在行の文字列を分割し、floating windowを作成
+function! s:create_words_window()
     let row = line('.') - line('w0')
     let col = s:get_col()
     let win_ids = []
-
-    " 現在行の文字列を分割し、floating windowで表示
     let words = s:split_words()
-    let i = 0
+
     for word in words
         let width = strdisplaywidth(word)
         if width == 0
@@ -108,8 +107,14 @@ function! s:main()
         call setline('.', word)
         execute "0windo " . ":"
         let col += width
-        let i += 1
     endfor
+    return win_ids
+endfunction
+
+function! s:main()
+
+    " 現在行の文字列をfloating windowで作成
+    let win_ids = s:create_words_window()
 
     " 現在行を空行にする
     call setline('.', '')
@@ -123,6 +128,7 @@ function! s:main()
     execute 'normal dd'
 
     " floating windowを右上に移動
+    let i = 0
     for win_id in win_ids
         let config = nvim_win_get_config(win_id)
         while i <= 20

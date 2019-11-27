@@ -100,9 +100,9 @@ function! s:main()
         let config = { 'relative': 'editor', 'row': row, 'col': col, 'width': width, 'height': 1, 'anchor': 'NW', 'style': 'minimal',}
         let win_id = s:create_window(config)
         call nvim_win_set_option(win_id, 'winblend', 100)
-
         call add(win_ids, win_id)
 
+        " ランダムな色をつける
         call s:set_color_random(win_id)
 
         call setline('.', word)
@@ -110,13 +110,16 @@ function! s:main()
         let col += width
         let i += 1
     endfor
-    execute 'normal ddO'
+
+    " 現在行を空行にする
+    call setline('.', '')
 
     " floating windowを下に落とす
     for win_id in win_ids
         call s:drop_window(win_id)
     endfor
 
+    " 空行を削除
     execute 'normal dd'
 
     " floating windowを右上に移動

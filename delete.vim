@@ -62,6 +62,7 @@ function! s:split_words()
         endif
         let i += 1
     endwhile
+    call insert(result, word, index)
     return result
 endfunction
 
@@ -77,29 +78,30 @@ function! s:main()
         return
     endif
 
-    " 現在行の文字列を分割
+    let win_ids = []
+    " 現在行の文字列を分割し、floating windowで表示
     let words = s:split_words()
-    echo words
-
     let i = 0
-    while i < len(words)
-        let width = strlen(get(words, i, ""))
-        let config = { 'relative': 'editor', 'row': 10, 'col': 100 + i*2, 'width': width, 'height': 1, 'anchor': 'NW', 'style': 'minimal',}
+    for word in words
+        let width = strdisplaywidth(word)
+        if width == 0
+            continue
+        endif
+        let config = { 'relative': 'editor', 'row': start_row+1, 'col': col, 'width': width, 'height': 1, 'anchor': 'NW', 'style': 'minimal',}
+        let win_id = s:create_window(config)
+        call add(win_ids, win_id)
 
         " ランダムな色を返すようにする
-        " hi mycolor guifg=#ffffff guibg=#dd6900
-        " call nvim_win_set_option(win_id, 'winhighlight', 'Normal:mycolor')
-        let win_id = s:create_window(config)
-        let i += 1
-    endwhile
-    echo i
-    return
-    let win_id = s:create_window(config)
+        let color = "#" . printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255))). printf('%02x', float2nr(Random(255)))
+        let hl_name = 'ClipBG' . i
+        execute 'hi' hl_name 'guifg=#ffffff' 'guibg=' . color
+        call nvim_win_set_option(win_id, 'winhighlight', 'Normal:'.hl_name)
 
-    " floating windowにクリップボードの内容をセット
-    call setline('.', current_line_text)
-    " フォーカスをカレントウィンドウに戻す
-    execute "0windo " . ":"
+        call setline('.', word)
+        execute "0windo " . ":"
+        let col += width
+        let i += 1
+    endfor
     redraw
     " execute 'normal dd'
     sleep 500ms
@@ -116,8 +118,15 @@ function! s:main()
     " floating windowを透明化
     " call s:transparency_window(win_id)
 
+    sleep 1
     " floating windowを削除
-    call nvim_win_close(win_id, v:true)
+    for win_id in win_ids
+        call nvim_win_close(win_id, v:true)
+    endfor
 endfunction
 
 nnoremap <silent> T :call <SID>main()<CR>
+
+function Random(max) abort
+  return str2nr(matchstr(reltimestr(reltime()), '\v\.@<=\d+')[1:]) % a:max
+endfunction

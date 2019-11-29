@@ -119,14 +119,18 @@ function! s:move_split_window_to_clip_window(win_id)
     let clipboard_config = nvim_win_get_config(g:clipboard_wid)
     let clipboard_col = clipboard_config.col
     let clipboard_row = clipboard_config.row
+    let clipboard_text = s:get_text(g:clipboard_wid)
+    let clipboard =  s:winid2tabnr(g:clipboard_wid)
+    execute clipboard . 'windo :'
+    let clipboard_last_line = line('w$')
 
     let i = 0
     let y = 0
     let is_max = v:false
     let config = nvim_win_get_config(a:win_id)
-    let max_y = float2nr(config.row - clipboard_row)
+    let max_y = float2nr(config.row - clipboard_row - clipboard_last_line + 1)
     while i <= clipboard_col
-    let config = nvim_win_get_config(a:win_id)
+        let config = nvim_win_get_config(a:win_id)
         let y += 1
 
         if is_max
@@ -139,17 +143,8 @@ function! s:move_split_window_to_clip_window(win_id)
             let is_max = v:true
         endif
 
-        sleep 1ms
         let i += 1
     endwhile
-
-    " 分割window内のテキストを取得
-    let text = s:get_text(a:win_id)
-
-    " クリップボードwindowにテキストを挿入
-    let clipboard =  s:winid2tabnr(g:clipboard_wid)
-    execute clipboard . 'windo :'
-    call setline('.', getline('.') . text)
 endfunction
 
 function! s:get_text(win_id)
@@ -169,7 +164,8 @@ function! s:create_clipboard_window()
     let config = { 'relative': 'editor', 'row': 10, 'col': 120, 'width': 50, 'height': 30, 'anchor': 'NW', 'style': 'minimal',}
     let win_id = s:create_window(config)
     call nvim_win_set_config(win_id, config)
-    call nvim_win_set_option(win_id, 'winblend', 100)
+    call nvim_win_set_option(win_id, 'winblend', 10)
+    set nowrap
     return win_id
 endfunction
 
@@ -178,10 +174,6 @@ function! s:winid2tabnr(win_id) abort
 endfunction
 
 function! s:main()
-    " クリップボードウィンドウを生成
-    let g:clipboard_wid = s:create_clipboard_window()
-    call s:focus_to_main_window()
-
     " 現在行の文字列をfloating windowで作成
     let win_ids = s:create_words_window()
 
@@ -197,9 +189,20 @@ function! s:main()
     execute 'normal dd'
 
     " 各floating windowを移動
+    let text = ''
     for win_id in win_ids
         call s:move_split_window_to_clip_window(win_id)
+        let text .= s:get_text(win_id)
     endfor
+
+    " クリップボードwindowにテキストを挿入
+    let clipboard =  s:winid2tabnr(g:clipboard_wid)
+    execute clipboard . 'windo :'
+    call setline('.', text)
+
+    " クリップボードwindowに改行を挿入
+    execute 'normal o'
+
     call s:focus_to_main_window()
 
     " 各floating windowを削除
@@ -207,6 +210,10 @@ function! s:main()
         call nvim_win_close(win_id, v:true)
     endfor
 endfunction
+
+" クリップボードウィンドウを生成
+let g:clipboard_wid = s:create_clipboard_window()
+call s:focus_to_main_window()
 
 nnoremap <silent> T :call <SID>main()<CR>
 

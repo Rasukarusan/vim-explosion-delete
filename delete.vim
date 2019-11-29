@@ -17,6 +17,10 @@ function! s:create_window(config)
     return win_id
 endfunction
 
+function! s:focus_to_main_window()
+    execute "0windo :"
+endfunction
+
 function! s:transparency_window(win_id)
     let i = 0
     while i <= 50
@@ -196,6 +200,7 @@ function! s:main()
     for win_id in win_ids
         call s:move_split_window_to_clip_window(win_id)
     endfor
+    call s:focus_to_main_window()
 
     " 各floating windowを削除
     for win_id in win_ids

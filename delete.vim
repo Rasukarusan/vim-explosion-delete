@@ -162,7 +162,9 @@ function! s:create_clipboard_window()
     if s:is_exist_clipboard_window()
         return g:clipboard_wid
     endif 
-    let config = { 'relative': 'editor', 'row': 10, 'col': 120, 'width': 50, 'height': 30, 'anchor': 'NW', 'style': 'minimal',}
+    let window_width = nvim_win_get_width(0)
+    let width = 50
+    let config = { 'relative': 'editor', 'row': 1, 'col': window_width - width, 'width': width, 'height': 30, 'anchor': 'NW', 'style': 'minimal',}
     let win_id = s:create_window(config)
     call nvim_win_set_config(win_id, config)
     call nvim_win_set_option(win_id, 'winblend', 10)

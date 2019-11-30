@@ -181,6 +181,7 @@ function! s:main() abort
     let clipboard =  s:winid2tabnr(g:clipboard_wid)
     execute clipboard . 'windo :'
     call setline('.', text)
+    redraw
 
     " クリップボードwindowに改行を挿入
     execute 'normal o'

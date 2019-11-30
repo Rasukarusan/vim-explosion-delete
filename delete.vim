@@ -37,11 +37,7 @@ function! s:create_window(config)
 endfunction
 
 function! s:move_floating_window(win_id, relative, row, col)
-  let newConfig = {
-    \ 'relative': a:relative,
-    \ 'row': a:row,
-    \ 'col': a:col,
-    \}
+  let newConfig = {'relative': a:relative, 'row': a:row, 'col': a:col,}
   call nvim_win_set_config(a:win_id, newConfig)
   redraw
 endfunction
@@ -116,13 +112,21 @@ function! s:create_words_window()
         if width == 0
             continue
         endif
-        let config = { 'relative': 'editor', 'row': row, 'col': col, 'width': width, 'height': 1, 'anchor': 'NW', 'style': 'minimal',}
+        let config = {
+            \'relative': 'editor',
+            \ 'row': row,
+            \ 'col': col,
+            \ 'width': width,
+            \ 'height': 1,
+            \ 'anchor': 'NW',
+            \ 'style': 'minimal',
+            \}
         let win_id = s:create_window(config)
-        call nvim_win_set_option(win_id, 'winblend', 100)
         call add(win_ids, win_id)
 
         " ランダムな色をつける
         call s:set_color_random(win_id)
+        call nvim_win_set_option(win_id, 'winblend', 100)
 
         call setline('.', word)
         execute "0windo " . ":"
@@ -164,6 +168,10 @@ endfunction
 
 function! s:winid2tabnr(win_id) abort
   return win_id2tabwin(a:win_id)[1]
+endfunction
+
+function Random(max) abort
+  return str2nr(matchstr(reltimestr(reltime()), '\v\.@<=\d+')[1:]) % a:max
 endfunction
 
 function! s:main() abort
@@ -210,7 +218,3 @@ let g:clipboard_wid = s:create_clipboard_window()
 call s:focus_to_main_window()
 
 nnoremap <silent> T :call <SID>main()<CR>
-
-function Random(max) abort
-  return str2nr(matchstr(reltimestr(reltime()), '\v\.@<=\d+')[1:]) % a:max
-endfunction

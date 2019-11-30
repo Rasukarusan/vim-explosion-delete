@@ -79,13 +79,11 @@ endfunction
 
 function! s:fall_window(win_id)
     let move_y = line('w$') - line('.')
-    let i = 0
     let config = nvim_win_get_config(a:win_id)
-    while i <= move_y
-        call s:move_floating_window(a:win_id, config.relative, config.row + i + 1, config.col) 
+    for y in range(0, move_y)
+        call s:move_floating_window(a:win_id, config.relative, config.row + y + 1, config.col) 
         sleep 4ms
-        let i += 1
-    endwhile
+    endfor
 endfunction
 
 function! s:set_color_random(win_id)
@@ -124,34 +122,27 @@ endfunction
 
 function! s:move_split_window_to_clip_window(win_id)
     let clipboard_config = nvim_win_get_config(g:clipboard_wid)
-    let clipboard_col = clipboard_config.col
-    let clipboard_row = clipboard_config.row
-    let clipboard_text = s:get_text(g:clipboard_wid)
     let clipboard =  s:winid2tabnr(g:clipboard_wid)
     execute clipboard . 'windo :'
     let clipboard_last_line = line('w$')
 
-    let i = 0
     let y = 0
     let is_max = v:false
     let config = nvim_win_get_config(a:win_id)
-    let max_y = float2nr(config.row - clipboard_row - clipboard_last_line + 1)
-    while i <= clipboard_col
+    let max_y = float2nr(config.row - clipboard_config.row - clipboard_last_line + 1)
+    for _ in range(0, float2nr(clipboard_config.col))
         let config = nvim_win_get_config(a:win_id)
         let y += 1
-
         if is_max
             call s:move_floating_window(a:win_id, config.relative, config.row, config.col + 1) 
         else
             call s:move_floating_window(a:win_id, config.relative, config.row - 1, config.col + 1) 
         endif
-
         if y == max_y
             let is_max = v:true
         endif
-
-        let i += 1
-    endwhile
+        sleep 1ms
+    endfor
 endfunction
 
 function! s:get_text(win_id)

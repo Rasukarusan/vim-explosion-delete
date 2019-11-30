@@ -8,7 +8,7 @@ function! s:create_clipboard_window()
     endif 
     let window_width = nvim_win_get_width(0)
     let window_height = nvim_win_get_height(0)
-    let width = 70
+    let width = float2nr(window_width*0.4)
     let config = { 
         \'relative': 'editor',
         \ 'row': 1,

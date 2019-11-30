@@ -44,11 +44,11 @@ function! s:focus_to_main_window()
 endfunction
 
 function! s:get_col() 
-    " 行番号を非表示にしている場合は調整不要なので0を返す
+    " when `set nonumber` not need adjustment
     if &number == 0
         return 0
     endif
-    " 1000行超えのファイルは未対応。1000行超えの場合ズレる。
+    " not support over 1000 line file
     return 4
 endfunction
 

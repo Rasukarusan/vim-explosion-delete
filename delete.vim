@@ -7,11 +7,22 @@ function! s:create_clipboard_window()
         return g:clipboard_wid
     endif 
     let window_width = nvim_win_get_width(0)
+    let window_height = nvim_win_get_height(0)
     let width = 70
-    let config = { 'relative': 'editor', 'row': 1, 'col': window_width - width, 'width': width, 'height': 30, 'anchor': 'NW', 'style': 'minimal',}
+    let config = { 
+        \'relative': 'editor',
+        \ 'row': 1,
+        \ 'col': window_width - width,
+        \ 'width': width,
+        \ 'height': float2nr(window_height*0.8),
+        \ 'anchor': 'NW',
+        \ 'style': 'minimal',
+        \}
     let win_id = s:create_window(config)
+    hi clipboard guifg=#ffffff guibg=#aff577
+    call nvim_win_set_option(win_id, 'winhighlight', 'Normal:clipboard')
+    call nvim_win_set_option(win_id, 'winblend', 60)
     call nvim_win_set_config(win_id, config)
-    call nvim_win_set_option(win_id, 'winblend', 10)
     set nowrap
     return win_id
 endfunction

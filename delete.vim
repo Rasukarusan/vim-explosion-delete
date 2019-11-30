@@ -57,9 +57,10 @@ function! s:split_words()
     let index = 0
     let i = 0
     let word = ''
+    let split_num = 6
     while i < len(words)
         let word = word . words[i]
-        if i % 4  == 0 && i != 0
+        if i % (len(words)/split_num)  == 0 && i != 0
             call insert(result, word, index)
             let word = ''
             let index += 1
@@ -76,7 +77,7 @@ function! s:fall_window(win_id)
     let config = nvim_win_get_config(a:win_id)
     while i <= move_y
         call s:move_floating_window(a:win_id, config.relative, config.row + i + 1, config.col) 
-        sleep 5ms
+        sleep 4ms
         let i += 1
     endwhile
 endfunction

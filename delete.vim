@@ -30,9 +30,6 @@ endfunction
 function! s:create_window(config)
     let buf = nvim_create_buf(v:false, v:true)
     let win_id = nvim_open_win(buf, v:true, a:config)
-    hi window_color guifg=#ffffff guibg=#dd6900
-    call nvim_win_set_option(win_id, 'winhighlight', 'Normal:window_color')
-    call nvim_win_set_option(win_id, 'winblend', 10)
     return win_id
 endfunction
 
@@ -53,15 +50,6 @@ function! s:get_col()
     endif
     " 1000行超えのファイルは未対応。1000行超えの場合ズレる。
     return 4
-endfunction
-
-function! s:get_width() 
-    return strlen(getline('.'))
-endfunction
-
-function! s:get_height() 
-    let contents = split(getline('.'), '\n')
-    return len(contents)
 endfunction
 
 function! s:split_words()
@@ -100,7 +88,6 @@ function! s:set_color_random(win_id)
     call nvim_win_set_option(a:win_id, 'winhighlight', 'Normal:'.hl_name)
 endfunction
 
-" 現在行の文字列を分割し、floating windowを作成
 function! s:create_words_window()
     let row = line('.') - line('w0')
     let col = s:get_col()
@@ -124,12 +111,11 @@ function! s:create_words_window()
         let win_id = s:create_window(config)
         call add(win_ids, win_id)
 
-        " ランダムな色をつける
-        call s:set_color_random(win_id)
+        " call s:set_color_random(win_id)
         call nvim_win_set_option(win_id, 'winblend', 100)
 
         call setline('.', word)
-        execute "0windo " . ":"
+        call s:focus_to_main_window()
         let col += width
     endfor
     return win_ids
@@ -175,45 +161,37 @@ function Random(max) abort
 endfunction
 
 function! s:main() abort
-    " 現在行の文字列をfloating windowで作成
+    " create clipboard window
     let win_ids = s:create_words_window()
 
-    " 現在行を空行にする
+    " fall current line
     call setline('.', '')
-
-    " 各floating windowを下に落とす
     for win_id in win_ids
         call s:fall_window(win_id)
     endfor
-
-    " 空行を削除
     execute 'normal dd'
 
-    " 各floating windowを移動
+    " move window to clipboard window
     let text = ''
     for win_id in win_ids
         call s:move_split_window_to_clip_window(win_id)
         let text .= s:get_text(win_id)
     endfor
 
-    " クリップボードwindowにテキストを挿入
+    " set current line string to clipboard window
     let clipboard =  s:winid2tabnr(g:clipboard_wid)
     execute clipboard . 'windo :'
     call setline('.', text)
     redraw
-
-    " クリップボードwindowに改行を挿入
     execute 'normal o'
-
     call s:focus_to_main_window()
 
-    " 各floating windowを削除
+    " close each floating window
     for win_id in win_ids
         call nvim_win_close(win_id, v:true)
     endfor
 endfunction
 
-" クリップボードウィンドウを生成
 let g:clipboard_wid = s:create_clipboard_window()
 call s:focus_to_main_window()
 

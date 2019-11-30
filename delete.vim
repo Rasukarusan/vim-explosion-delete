@@ -1,11 +1,19 @@
-function! s:move_floating_window(win_id, relative, row, col)
-  let newConfig = {
-    \ 'relative': a:relative,
-    \ 'row': a:row,
-    \ 'col': a:col,
-    \}
-  call nvim_win_set_config(a:win_id, newConfig)
-  redraw
+function s:is_exist_clipboard_window() 
+    return get(g:, 'clipboard_wid') != 0 && nvim_win_is_valid(g:clipboard_wid) == v:true
+endfunction
+
+function! s:create_clipboard_window()
+    if s:is_exist_clipboard_window()
+        return g:clipboard_wid
+    endif 
+    let window_width = nvim_win_get_width(0)
+    let width = 70
+    let config = { 'relative': 'editor', 'row': 1, 'col': window_width - width, 'width': width, 'height': 30, 'anchor': 'NW', 'style': 'minimal',}
+    let win_id = s:create_window(config)
+    call nvim_win_set_config(win_id, config)
+    call nvim_win_set_option(win_id, 'winblend', 10)
+    set nowrap
+    return win_id
 endfunction
 
 function! s:create_window(config)
@@ -17,20 +25,18 @@ function! s:create_window(config)
     return win_id
 endfunction
 
-function! s:focus_to_main_window()
-    execute "0windo :"
+function! s:move_floating_window(win_id, relative, row, col)
+  let newConfig = {
+    \ 'relative': a:relative,
+    \ 'row': a:row,
+    \ 'col': a:col,
+    \}
+  call nvim_win_set_config(a:win_id, newConfig)
+  redraw
 endfunction
 
-function! s:transparency_window(win_id)
-    let i = 0
-    while i <= 50
-        call nvim_win_set_option(a:win_id, 'winblend', i*2)
-        let i += 1
-        " 毎回redrawするとカクつくため
-        if i % 2 == 0
-            redraw
-        endif
-    endwhile
+function! s:focus_to_main_window()
+    execute "0windo :"
 endfunction
 
 function! s:get_col() 
@@ -154,29 +160,11 @@ function! s:get_text(win_id)
     return getline('.')
 endfunction
 
-function s:is_exist_clipboard_window() 
-    return get(g:, 'clipboard_wid') != 0 && nvim_win_is_valid(g:clipboard_wid) == v:true
-endfunction
-
-function! s:create_clipboard_window()
-    if s:is_exist_clipboard_window()
-        return g:clipboard_wid
-    endif 
-    let window_width = nvim_win_get_width(0)
-    let width = 50
-    let config = { 'relative': 'editor', 'row': 1, 'col': window_width - width, 'width': width, 'height': 30, 'anchor': 'NW', 'style': 'minimal',}
-    let win_id = s:create_window(config)
-    call nvim_win_set_config(win_id, config)
-    call nvim_win_set_option(win_id, 'winblend', 10)
-    set nowrap
-    return win_id
-endfunction
-
 function! s:winid2tabnr(win_id) abort
   return win_id2tabwin(a:win_id)[1]
 endfunction
 
-function! s:main()
+function! s:main() abort
     " 現在行の文字列をfloating windowで作成
     let win_ids = s:create_words_window()
 

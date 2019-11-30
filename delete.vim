@@ -57,7 +57,7 @@ function! s:split_words()
     let index = 0
     let i = 0
     let word = ''
-    let split_num = 6
+    let split_num = 7
     while i < len(words)
         let word = word . words[i]
         if i % (len(words)/split_num)  == 0 && i != 0

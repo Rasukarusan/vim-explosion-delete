@@ -1,7 +1,5 @@
-Name 
-====
-
 NeoVim Tetris Delete
+====
 
 ## Description
 
